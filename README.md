@@ -1,6 +1,5 @@
-# Nobas Useful Bits
+# Nobas Useful Unity Bits
  
-A collection of probably useless code snippets I've used in various projects. CC0, credit is appreciated.
+A collection of snippets I created to use across Unity games. C#
 
-## Unity Package:
-A small collection of useful starter scripts and systems.
+CC0 but credit is appreciated.
