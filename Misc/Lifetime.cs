@@ -1,25 +1,29 @@
 using UnityEngine;
+using Noba.ObjectPool;
 
 /// <summary>
 /// Basic lifetime class to automatically return an object to the pool after X time.
 /// Requires https://github.com/akbiggs/UnityTimer
 /// </summary>
 
-public class Lifetime : PooledMonoBehaviour
+namespace Noba
 {
-    [SerializeField] float lifetime = 0.1f;
-
-    protected override void Start()
+    public class Lifetime : PooledMonoBehaviour
     {
-        base.Start();
+        [SerializeField] float lifetime = 0.1f;
 
-        this.AttachTimer(lifetime, ReturnToPool);
-    }
+        protected override void Start()
+        {
+            base.Start();
 
-    public override void OnSpawn()
-    {
-        base.OnSpawn();
+            this.AttachTimer(lifetime, ReturnToPool);
+        }
 
-        this.AttachTimer(lifetime, ReturnToPool);
+        public override void OnSpawn()
+        {
+            base.OnSpawn();
+
+            this.AttachTimer(lifetime, ReturnToPool);
+        }
     }
 }

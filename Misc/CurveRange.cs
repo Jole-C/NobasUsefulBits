@@ -6,11 +6,14 @@ using Random = UnityEngine.Random;
 /// Basic range of two curves.
 /// </summary>
 
-[Serializable]
-public struct CurveRange
+namespace Noba.Ranges
 {
-    public AnimationCurve curveA;
-    public AnimationCurve curveB;
+    [Serializable]
+    public struct CurveRange
+    {
+        public AnimationCurve curveA;
+        public AnimationCurve curveB;
 
-    public AnimationCurve RandomCurve => Random.value > 0.5 ? curveA : curveB;
+        public AnimationCurve RandomCurve => Random.value > 0.5 ? curveA : curveB;
+    }
 }

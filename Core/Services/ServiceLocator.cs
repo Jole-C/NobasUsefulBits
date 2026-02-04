@@ -4,29 +4,33 @@ using System.Collections.Generic;
 /// <summary>
 /// Basic Service Locator class.
 /// </summary>
-public static class ServiceLocator
+
+namespace Noba.Service
 {
-    private static Dictionary<Type, object> services = new();
-
-    public static void RegisterService<T>(T service)
+    public static class ServiceLocator
     {
-        services[typeof(T)] = service;
-    }
+        private static Dictionary<Type, object> services = new();
 
-    public static bool TryGetService<T>(out T service)
-    {
-        if (services.TryGetValue(typeof(T), out object obj) && obj is T typed)
+        public static void RegisterService<T>(T service)
         {
-            service = typed;
-            return true;
+            services[typeof(T)] = service;
         }
 
-        service = default;
-        return false;
-    }
+        public static bool TryGetService<T>(out T service)
+        {
+            if (services.TryGetValue(typeof(T), out object obj) && obj is T typed)
+            {
+                service = typed;
+                return true;
+            }
 
-    public static void UnregisterService<T>()
-    {
-        services.Remove(typeof(T));
+            service = default;
+            return false;
+        }
+
+        public static void UnregisterService<T>()
+        {
+            services.Remove(typeof(T));
+        }
     }
 }

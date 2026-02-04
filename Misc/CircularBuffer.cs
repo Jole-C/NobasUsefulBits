@@ -6,74 +6,77 @@ using UnityEngine;
 /// </summary>
 /// <typeparam name="T"></typeparam>
 
-public class CircularBuffer<T>
+namespace Noba.DataStructures
 {
-    T[] buffer;
-
-    public int Read { get; private set; } = 0;
-    public int Write { get; private set; } = 0;
-    public int Size { get; private set; } = 0;
-    public T[] Buffer => buffer;
-
-    public CircularBuffer(int size)
+    public class CircularBuffer<T>
     {
-        Size = size;
-        Array.Resize(ref buffer, Size);
-    }
+        T[] buffer;
 
-    public T ReadData()
-    {
-        T value = buffer[Read];
-        Read++;
+        public int Read { get; private set; } = 0;
+        public int Write { get; private set; } = 0;
+        public int Size { get; private set; } = 0;
+        public T[] Buffer => buffer;
 
-        WrapValues();
-
-        return value;
-    }
-
-    public void WriteData(T data)
-    {
-        buffer[Write] = data;
-        Write++;
-
-        WrapValues();
-    }
-
-    public T GetPoint(int index)
-    {
-        return buffer[index];
-    }
-
-    public void WriteToPoint(int index, T data)
-    {
-        if (index < 0 || index >= buffer.Length - 1)
+        public CircularBuffer(int size)
         {
-            Debug.LogError("Invalid index.");
-            return;
+            Size = size;
+            Array.Resize(ref buffer, Size);
         }
 
-        buffer[index] = data;
-    }
-
-    public void SetSize(int size)
-    {
-        Size = size;
-        Array.Resize(ref buffer, Size);
-
-        WrapValues();
-    }
-
-    public void ClearData()
-    {
-        for (int i = 0; i < buffer.Length - 1; i++)
+        public T ReadData()
         {
-            buffer[i] = default(T);
-        }
-    }
+            T value = buffer[Read];
+            Read++;
 
-    void WrapValues()
-    {
-        Read %= Size - 1;
-        Write %= Size - 1;
+            WrapValues();
+
+            return value;
+        }
+
+        public void WriteData(T data)
+        {
+            buffer[Write] = data;
+            Write++;
+
+            WrapValues();
+        }
+
+        public T GetPoint(int index)
+        {
+            return buffer[index];
+        }
+
+        public void WriteToPoint(int index, T data)
+        {
+            if (index < 0 || index >= buffer.Length - 1)
+            {
+                Debug.LogError("Invalid index.");
+                return;
+            }
+
+            buffer[index] = data;
+        }
+
+        public void SetSize(int size)
+        {
+            Size = size;
+            Array.Resize(ref buffer, Size);
+
+            WrapValues();
+        }
+
+        public void ClearData()
+        {
+            for (int i = 0; i < buffer.Length - 1; i++)
+            {
+                buffer[i] = default(T);
+            }
+        }
+
+        void WrapValues()
+        {
+            Read %= Size - 1;
+            Write %= Size - 1;
+        }
     }
 }

@@ -8,64 +8,67 @@ using UnityEngine;
 /// </summary>
 /// 
 
-public class ObjectPool
+namespace Noba.ObjectPool
 {
-    GameObject prefabClass;
-    List<GameObject> prefabInstances = new List<GameObject>();
-
-    public ObjectPool(GameObject prefab)
+    public class ObjectPool
     {
-        prefabClass = prefab;
-    }
+        GameObject prefabClass;
+        List<GameObject> prefabInstances = new List<GameObject>();
 
-    GameObject TryGetInstance(Vector3 location, Quaternion rotation, Transform parent, bool activate = true)
-    {
-        GameObject returnedPrefab = null;
-
-        foreach (GameObject instance in prefabInstances)
+        public ObjectPool(GameObject prefab)
         {
-            if (!instance.activeInHierarchy)
+            prefabClass = prefab;
+        }
+
+        GameObject TryGetInstance(Vector3 location, Quaternion rotation, Transform parent, bool activate = true)
+        {
+            GameObject returnedPrefab = null;
+
+            foreach (GameObject instance in prefabInstances)
             {
-                returnedPrefab = instance;
-
-                returnedPrefab.transform.parent = parent;
-                returnedPrefab.transform.position = location;
-                returnedPrefab.transform.rotation = rotation;
-
-                returnedPrefab.SetActive(activate);
-
-                PooledMonoBehaviour pooledMonoBehaviour = instance.GetComponent<PooledMonoBehaviour>();
-
-                if (pooledMonoBehaviour)
+                if (!instance.activeInHierarchy)
                 {
-                    pooledMonoBehaviour.OnSpawn();
+                    returnedPrefab = instance;
+
+                    returnedPrefab.transform.parent = parent;
+                    returnedPrefab.transform.position = location;
+                    returnedPrefab.transform.rotation = rotation;
+
+                    returnedPrefab.SetActive(activate);
+
+                    PooledMonoBehaviour pooledMonoBehaviour = instance.GetComponent<PooledMonoBehaviour>();
+
+                    if (pooledMonoBehaviour)
+                    {
+                        pooledMonoBehaviour.OnSpawn();
+                    }
+
+                    break;
                 }
-
-                break;
             }
+
+            if (!returnedPrefab)
+            {
+                returnedPrefab = GameObject.Instantiate(prefabClass, location, rotation, parent);
+                prefabInstances.Add(returnedPrefab);
+                returnedPrefab.SetActive(activate);
+            }
+
+            return returnedPrefab;
         }
 
-        if (!returnedPrefab)
+        public GameObject SpawnObject(Vector3 location, Quaternion rotation, Transform parent)
         {
-            returnedPrefab = GameObject.Instantiate(prefabClass, location, rotation, parent);
-            prefabInstances.Add(returnedPrefab);
-            returnedPrefab.SetActive(activate);
+            GameObject instance = TryGetInstance(location, rotation, parent);
+
+            return instance;
         }
 
-        return returnedPrefab;
-    }
+        public GameObject SpawnObjectDeferred(Vector3 location, Quaternion rotation, Transform parent)
+        {
+            GameObject instance = TryGetInstance(location, rotation, parent, false);
 
-    public GameObject SpawnObject(Vector3 location, Quaternion rotation, Transform parent)
-    {
-        GameObject instance = TryGetInstance(location, rotation, parent);
-
-        return instance;
-    }
-
-    public GameObject SpawnObjectDeferred(Vector3 location, Quaternion rotation, Transform parent)
-    {
-        GameObject instance = TryGetInstance(location, rotation, parent, false);
-
-        return instance;
+            return instance;
+        }
     }
 }

@@ -1,255 +1,255 @@
-using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using static UnityEditor.Progress;
 
 ///<Summary>
 /// Inventory class supporting a hotbar. Uses input actions that will need to be defined.
 ///</Summary>
 
-public class Inventory : MonoBehaviour
+namespace Noba.Inventory
 {
-    [Header("Inventory")]
-    [SerializeField] int maxInventorySlots = 4;
-    [SerializeField] GameObject itemAttachmentPoint;
-
-    public Item CurrentHotbarObject { get; private set; } = null;
-    public bool HandFull { get { return CurrentHotbarObject != null; } }
-
-    List<Item> inventory = new List<Item>();
-
-    float currentHotbarSlot = 0;
-
-    InventoryInputActions inputActions;
-    InputAction hotkey;
-    InputAction drop;
-
-    void Start()
+    public class Inventory : MonoBehaviour
     {
-        Cursor.lockState = CursorLockMode.Locked;
+        [Header("Inventory")]
+        [SerializeField] int maxInventorySlots = 4;
+        [SerializeField] GameObject itemAttachmentPoint;
 
-        inputActions = new InventoryInputActions();
+        public Item CurrentHotbarObject { get; private set; } = null;
+        public bool HandFull { get { return CurrentHotbarObject != null; } }
 
-        hotkey = inputActions.Player.Hotkey;
-        drop = inputActions.Player.Drop;
+        List<Item> inventory = new List<Item>();
 
-        hotkey.Enable();
-        drop.Enable();
+        float currentHotbarSlot = 0;
 
-        for (int i = 0; i < maxInventorySlots; i++)
+        InventoryInputActions inputActions;
+        InputAction hotkey;
+        InputAction drop;
+
+        void Start()
         {
-            inventory.Add(null);
-        }
-    }
+            Cursor.lockState = CursorLockMode.Locked;
 
-    void Update()
-    {
-        if (hotkey.IsPressed())
-        {
-            SelectHotbarItem();
-        }
+            inputActions = new InventoryInputActions();
 
-        if (drop.IsPressed())
-        {
-            if (CurrentHotbarObject)
+            hotkey = inputActions.Player.Hotkey;
+            drop = inputActions.Player.Drop;
+
+            hotkey.Enable();
+            drop.Enable();
+
+            for (int i = 0; i < maxInventorySlots; i++)
             {
-                RemoveItem(CurrentHotbarObject);
-            }
-        }
-    }
-
-    void CheckSpentItems()
-    {
-        for (int i = inventory.Count - 1; i >= 0; i--)
-        {
-            Item item = inventory[i];
-
-            if (item.Spent)
-            {
-                RemoveItem(item, false);
-            }
-        }
-    }
-
-    public void RegisterHotbarSlot(int hotbarSlot, Item item)
-    {
-        inventory[hotbarSlot] = item;
-    }
-
-    int FindFreeHotbarSlot()
-    {
-        for (int i = 0; i < maxInventorySlots; i++)
-        {
-            if (!inventory[i])
-            {
-                return i;
+                inventory.Add(null);
             }
         }
 
-        return -1;
-    }
-
-    void SelectHotbarItem()
-    {
-        float lastHotbarSlot = currentHotbarSlot;
-        currentHotbarSlot = hotkey.ReadValue<float>() - 1;
-
-        UpdateSelectedHotbarItem();
-    }
-
-    void UpdateSelectedHotbarItem()
-    {
-        if (CurrentHotbarObject)
+        void Update()
         {
-            Item itemScript = CurrentHotbarObject.GetComponent<Item>();
-            itemScript.SetActive(false);
-        }
-
-        CurrentHotbarObject = inventory[(int)currentHotbarSlot];
-
-        if (CurrentHotbarObject)
-        {
-            Item itemScript = CurrentHotbarObject.GetComponent<Item>();
-            itemScript.SetActive(true);
-        }
-    }
-
-    int CheckFilledSlots()
-    {
-        int filledSlots = 0;
-
-        for (int i = 0; i < maxInventorySlots; i++)
-        {
-            if (inventory[i])
+            if (hotkey.IsPressed())
             {
-                filledSlots += 1;
+                SelectHotbarItem();
+            }
+
+            if (drop.IsPressed())
+            {
+                if (CurrentHotbarObject)
+                {
+                    RemoveItem(CurrentHotbarObject);
+                }
             }
         }
 
-        return filledSlots;
-    }
-
-    int FindHotbarIndex(Item item)
-    {
-        if (!inventory.Contains(item))
+        void CheckSpentItems()
         {
+            for (int i = inventory.Count - 1; i >= 0; i--)
+            {
+                Item item = inventory[i];
+
+                if (item.Spent)
+                {
+                    RemoveItem(item, false);
+                }
+            }
+        }
+
+        public void RegisterHotbarSlot(int hotbarSlot, Item item)
+        {
+            inventory[hotbarSlot] = item;
+        }
+
+        int FindFreeHotbarSlot()
+        {
+            for (int i = 0; i < maxInventorySlots; i++)
+            {
+                if (!inventory[i])
+                {
+                    return i;
+                }
+            }
+
             return -1;
         }
 
-        for (int i = 0; i < maxInventorySlots; i++)
+        void SelectHotbarItem()
         {
-            if (inventory[i] == item)
+            float lastHotbarSlot = currentHotbarSlot;
+            currentHotbarSlot = hotkey.ReadValue<float>() - 1;
+
+            UpdateSelectedHotbarItem();
+        }
+
+        void UpdateSelectedHotbarItem()
+        {
+            if (CurrentHotbarObject)
             {
-                return i;
+                Item itemScript = CurrentHotbarObject.GetComponent<Item>();
+                itemScript.SetActive(false);
+            }
+
+            CurrentHotbarObject = inventory[(int)currentHotbarSlot];
+
+            if (CurrentHotbarObject)
+            {
+                Item itemScript = CurrentHotbarObject.GetComponent<Item>();
+                itemScript.SetActive(true);
             }
         }
 
-        return -1;
-    }
-
-    public void PickUpItem(GameObject itemObject)
-    {
-        if (!itemObject)
+        int CheckFilledSlots()
         {
-            Debug.Log("Object is null.");
-            return;
-        }
+            int filledSlots = 0;
 
-        if (CheckFilledSlots() >= maxInventorySlots)
-        {
-            Debug.Log("Inventory is full.");
-            return;
-        }
-
-        Item itemScript = itemObject.GetComponent<Item>();
-
-        if (!itemScript)
-        {
-            Debug.Log("Not an item.");
-            return;
-        }
-
-        if (itemScript.Pickup(itemAttachmentPoint, gameObject))
-        {
-            RegisterItem(itemScript);
-            itemScript.SetActive(false);
-        }
-    }
-
-    public void RemoveItem(Item item, bool drop = true)
-    {
-        if (!inventory.Contains(item))
-        {
-            Debug.Log("Not in inventory.");
-            return;
-        }
-
-        if (!drop)
-        {
-            item.Destroy();
-
-            UnregisterItem(item);
-
-            return;
-        }
-
-        if (item.Drop(gameObject))
-        {
-            UnregisterItem(item);
-
-            if (item == CurrentHotbarObject)
+            for (int i = 0; i < maxInventorySlots; i++)
             {
-                CurrentHotbarObject = null;
+                if (inventory[i])
+                {
+                    filledSlots += 1;
+                }
+            }
+
+            return filledSlots;
+        }
+
+        int FindHotbarIndex(Item item)
+        {
+            if (!inventory.Contains(item))
+            {
+                return -1;
+            }
+
+            for (int i = 0; i < maxInventorySlots; i++)
+            {
+                if (inventory[i] == item)
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        public void PickUpItem(GameObject itemObject)
+        {
+            if (!itemObject)
+            {
+                Debug.Log("Object is null.");
+                return;
+            }
+
+            if (CheckFilledSlots() >= maxInventorySlots)
+            {
+                Debug.Log("Inventory is full.");
+                return;
+            }
+
+            Item itemScript = itemObject.GetComponent<Item>();
+
+            if (!itemScript)
+            {
+                Debug.Log("Not an item.");
+                return;
+            }
+
+            if (itemScript.Pickup(itemAttachmentPoint, gameObject))
+            {
+                RegisterItem(itemScript);
+                itemScript.SetActive(false);
             }
         }
-    }
 
-    public bool TryTakeItem(Item item)
-    {
-        if (!inventory.Contains(item))
+        public void RemoveItem(Item item, bool drop = true)
         {
-            Debug.Log("Not in inventory.");
+            if (!inventory.Contains(item))
+            {
+                Debug.Log("Not in inventory.");
+                return;
+            }
+
+            if (!drop)
+            {
+                item.Destroy();
+
+                UnregisterItem(item);
+
+                return;
+            }
+
+            if (item.Drop(gameObject))
+            {
+                UnregisterItem(item);
+
+                if (item == CurrentHotbarObject)
+                {
+                    CurrentHotbarObject = null;
+                }
+            }
+        }
+
+        public bool TryTakeItem(Item item)
+        {
+            if (!inventory.Contains(item))
+            {
+                Debug.Log("Not in inventory.");
+
+                return false;
+            }
+
+            if (item.Drop(gameObject))
+            {
+                UnregisterItem(item);
+
+                if (item == CurrentHotbarObject)
+                {
+                    CurrentHotbarObject = null;
+                }
+
+                return true;
+            }
 
             return false;
         }
 
-        if (item.Drop(gameObject))
+        void RegisterItem(Item item)
         {
-            UnregisterItem(item);
+            int slot = FindFreeHotbarSlot();
 
-            if (item == CurrentHotbarObject)
+            if (slot >= 0)
             {
-                CurrentHotbarObject = null;
+                RegisterHotbarSlot(slot, item);
+            }
+        }
+
+        void UnregisterItem(Item item)
+        {
+            int index = FindHotbarIndex(item);
+
+            if (index < 0)
+            {
+                Debug.Log("Not in inventory.");
+                return;
             }
 
-            return true;
+            inventory[index] = null;
         }
-
-        return false;
-    }
-
-    void RegisterItem(Item item)
-    {
-        int slot = FindFreeHotbarSlot();
-
-        if (slot >= 0)
-        {
-            RegisterHotbarSlot(slot, item);
-        }
-    }
-
-    void UnregisterItem(Item item)
-    {
-        int index = FindHotbarIndex(item);
-
-        if (index < 0)
-        {
-            Debug.Log("Not in inventory.");
-            return;
-        }
-
-        inventory[index] = null;
     }
 }

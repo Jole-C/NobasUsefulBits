@@ -1,27 +1,32 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Noba.Service;
 
 /// <summary>
 /// Basic GameManager class.
 /// </summary>
 /// 
-public class GameManager : ServiceMonoBehaviour
+
+namespace Noba.Example
 {
-    [SerializeField] string startingScene = "Menu";
-
-    protected override void Awake()
+    public class GameManager : ServiceMonoBehaviour
     {
-        ServiceLocator.RegisterService(this);
-        DontDestroyOnLoad(this);
-    }
+        [SerializeField] string startingScene = "Menu";
 
-    protected override void Start()
-    {
-        SceneManager.LoadScene(startingScene);
-    }
+        protected override void Awake()
+        {
+            ServiceLocator.RegisterService(this);
+            DontDestroyOnLoad(this);
+        }
 
-    void OnDestroy()
-    {
-        ServiceLocator.UnregisterService<GameManager>();
+        protected override void Start()
+        {
+            SceneManager.LoadScene(startingScene);
+        }
+
+        void OnDestroy()
+        {
+            ServiceLocator.UnregisterService<GameManager>();
+        }
     }
 }

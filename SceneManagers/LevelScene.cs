@@ -1,16 +1,21 @@
 using UnityEngine;
+using Noba.Service;
+using Noba.Scene;
 
 //todo 
 
-public class LevelScene : SceneHandler
+namespace Noba.Scene
 {
-    [SerializeField] GameObject uiPrefab;
-
-    protected override void Start()
+    public class LevelScene : SceneHandler
     {
-        if (ServiceLocator.TryGetService(out UIManager uiManager))
+        [SerializeField] GameObject uiPrefab;
+
+        protected override void Start()
         {
-            uiManager.SwitchUI(uiPrefab);
+            if (ServiceLocator.TryGetService(out UIManager uiManager))
+            {
+                uiManager.SwitchUI(uiPrefab);
+            }
         }
     }
 }

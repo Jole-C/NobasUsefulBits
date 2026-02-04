@@ -1,11 +1,14 @@
 using UnityEngine;
 
-[System.Serializable]
-public struct Range
+namespace Noba.Ranges
 {
-    public float min;
-    public float max;
+    [System.Serializable]
+    public struct Range
+    {
+        public float min;
+        public float max;
 
-    public float RandomValue => Random.Range(min, max);
+        public float RandomValue => Random.Range(min, max);
+    }
 }
 
